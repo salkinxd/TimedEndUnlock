@@ -7,7 +7,7 @@
     "metadata": {
       "name": "Timed End Unlock",
       "description": "Controls and schedules access to The End dimension.",
-      "license": "MIT"
+      "license": "LicenseRef-Timed-End-Unlock-Noncommercial-1.0"
     },
     "intermediate_mappings": "net.fabricmc:intermediary",
     "entrypoints": {

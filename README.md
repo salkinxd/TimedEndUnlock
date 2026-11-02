@@ -100,4 +100,4 @@ The JAR is produced in `build/libs/`. The build uses Gradle Kotlin DSL, Quilt Lo
 
 ## License
 
-MIT
+Released under the **Timed End Unlock Noncommercial License 1.0** (see [`LICENSE.md`](LICENSE.md)). You are free to use, modify, and redistribute this mod — as long as you give credit, keep derivatives under the same terms, and do **not** monetize it (selling, paid modpacks, monetized servers, paywalls, ads/sponsor features) without prior written consent from the author.
