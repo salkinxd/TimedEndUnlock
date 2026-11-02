@@ -24,6 +24,8 @@
 - `src/main/resources/timed_end_unlock.mixins.json` -> Mixin package routing (`at.salkin.timedendunlock.mixin`), `JAVA_25` compatibility, injector requirements.
 
 ### Java Source Code
-- `src/main/java/at/salkin/timedendunlock/TimedEndUnlock.java` -> Primary entrypoint (`ModInitializer`), `MOD_ID`, `LOGGER`, `onInitialize()`.
+- `src/main/java/at/salkin/timedendunlock/TimedEndUnlock.java` -> Primary entrypoint (`ModInitializer`), `MOD_ID`, `LOGGER`, `onInitialize()` (Config.load, ModCommands.register, `UseBlockCallback` hook). Hook: eye-on-frame; bypass via `Player.checkPermission(BYPASS.key(), GAMEMASTERS)`; locked -> red `sendSystemMessage(Config.message())` + `FAIL`. MC 26.3: `Player.sendSystemMessage` (no `sendMessage`).
+- `src/main/java/at/salkin/timedendunlock/ModCommands.java` -> Fabric `CommandRegistrationCallback`: `/endunlock reload` (requires `timed_end_unlock:reload` OR vanilla op>=GAMEMASTERS). `PermissionNode.of` booleans `timed_end_unlock:reload` + `timed_end_unlock:bypass` (fabric-permission-api-v1, in fabric-api aggregate; LuckPerms bridges via `PermissionEvents.ON_REQUEST`, no LP compile dep).
+- `src/main/java/at/salkin/timedendunlock/Config.java` -> Loads `<server>/config/timed_end_unlock.toml` via `org.quiltmc.loader.api.QuiltLoader.getConfigDir()` (native Quilt API; `FabricLoader` deprecated in quilt-loader compat), creates commented default, regex-reads string keys `unlock_datetime` (`yyyy-MM-dd HH:mm`, server-local), `unlock_message` (`{datetime}` placeholder), `datetime_format` (`DateTimeFormatter` pattern, UK default `dd/MM/yyyy HH:mm`); null-guarded `value()`; `isOpen()`, `message()`, fail-open on error, pattern fallback.
 - `src/main/java/at/salkin/timedendunlock/mixin/` -> Designated package for Mixin classes (currently empty).
 

@@ -1,9 +1,11 @@
 package at.salkin.timedendunlock;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents.Chat;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -15,6 +17,7 @@ import net.minecraft.world.phys.HitResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("deprecation")
 public class TimedEndUnlock implements ModInitializer {
     public static final String MOD_ID = "timed_end_unlock";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
@@ -22,6 +25,8 @@ public class TimedEndUnlock implements ModInitializer {
     @Override
     public void onInitialize() {
         LOGGER.info("Initializing Timed End Unlock");
+        Config.load();
+        ModCommands.register();
         UseBlockCallback.EVENT.register(TimedEndUnlock::onUseBlock);
     }
 
@@ -31,9 +36,14 @@ public class TimedEndUnlock implements ModInitializer {
         }
         BlockPos pos = hitResult.getBlockPos();
         if (player.getItemInHand(hand).is(Items.ENDER_EYE) && world.getBlockState(pos).is(Blocks.END_PORTAL_FRAME)) {
-            LOGGER.info("ender_eye used on end_portal_frame at {} by {}", pos.toShortString(),
-                    player.getName().getString());
-            return InteractionResult.FAIL;
+            if (player.checkPermission(ModCommands.BYPASS.key(), PermissionLevel.GAMEMASTERS)) {
+                return InteractionResult.PASS;
+            }
+            if (!Config.isOpen()) {
+                player.sendSystemMessage(Component.literal(Config.message()).withStyle(ChatFormatting.RED));
+                LOGGER.info("{} tried to open the End at {}", player.getName().getString(), pos.toShortString());
+                return InteractionResult.FAIL;
+            }
         }
         return InteractionResult.PASS;
     }
