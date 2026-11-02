@@ -27,6 +27,19 @@ dependencies {
     implementation(libs.fabric.api)
 }
 
+loom {
+    mods {
+        create("timed_end_unlock") {
+            sourceSet(sourceSets.main.get())
+        }
+    }
+    runs {
+        configureEach {
+            vmArg("-Dloader.disableEnvironmentStrip=true")
+        }
+    }
+}
+
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(25))
