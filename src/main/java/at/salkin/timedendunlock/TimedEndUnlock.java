@@ -54,6 +54,7 @@ public class TimedEndUnlock implements ModInitializer {
     private static final Map<UUID, EntryLocation> ENTRY_LOCATIONS = new HashMap<>();
     private static final Map<UUID, Long> GATE_NOTICES = new HashMap<>();
     private static boolean announcementPending;
+    private static int watchTick;
 
     @Override
     public void onInitialize() {
@@ -86,6 +87,19 @@ public class TimedEndUnlock implements ModInitializer {
             }
             LOGGER.info("The End has been opened, announced to {} player(s)", server.getPlayerCount());
         }
+        if (++watchTick % 20 == 0 && !Config.isOpen()) {
+            ServerLevel end = server.getLevel(Level.END);
+            if (end == null) {
+                return;
+            }
+            for (ServerPlayer player : List.copyOf(end.players())) {
+                if (player.isRemoved() || player.checkPermission(ModCommands.BYPASS.key(), PermissionLevel.GAMEMASTERS)) {
+                    continue;
+                }
+                LOGGER.info("{} no longer holds End access, returning them to their origin", player.getName().getString());
+                evictPlayer(server, player);
+            }
+        }
     }
 
     public static void recordEntry(ServerPlayer player, ServerLevel from) {
@@ -107,40 +121,44 @@ public class TimedEndUnlock implements ModInitializer {
             if (player.checkPermission(ModCommands.BYPASS.key(), PermissionLevel.GAMEMASTERS)) {
                 continue;
             }
-            EntryLocation entry = ENTRY_LOCATIONS.remove(player.getUUID());
-            ServerLevel target = null;
-            double x;
-            double y;
-            double z;
-            float yaw = 0.0F;
-            float pitch = 0.0F;
-            if (entry != null) {
-                target = server.getLevel(ResourceKey.create(Registries.DIMENSION, Identifier.parse(entry.dimension())));
-                if (target != null) {
-                    x = entry.x();
-                    y = entry.y();
-                    z = entry.z();
-                    yaw = entry.yaw();
-                    pitch = entry.pitch();
-                } else {
-                    x = y = z = 0;
-                }
-            } else {
-                target = server.getLevel(Level.OVERWORLD);
-                LevelData.RespawnData spawn = target.getRespawnData();
-                x = spawn.pos().getX() + 0.5;
-                y = spawn.pos().getY();
-                z = spawn.pos().getZ() + 0.5;
-                yaw = spawn.yaw();
-                pitch = spawn.pitch();
-            }
-            if (target == null) {
-                continue;
-            }
-            player.teleport(new TeleportTransition(target, new Vec3(x, y, z), Vec3.ZERO, yaw, pitch, TeleportTransition.DO_NOTHING));
-            player.sendSystemMessage(Component.literal("The End has been locked; you were returned to " + target.dimension().identifier() + ".").withStyle(ChatFormatting.RED));
-            LOGGER.info("Returned {} from The End to {}", player.getName().getString(), target.dimension().identifier());
+            evictPlayer(server, player);
         }
+    }
+
+    private static void evictPlayer(MinecraftServer server, ServerPlayer player) {
+        EntryLocation entry = ENTRY_LOCATIONS.remove(player.getUUID());
+        ServerLevel target = null;
+        double x;
+        double y;
+        double z;
+        float yaw = 0.0F;
+        float pitch = 0.0F;
+        if (entry != null) {
+            target = server.getLevel(ResourceKey.create(Registries.DIMENSION, Identifier.parse(entry.dimension())));
+            if (target != null) {
+                x = entry.x();
+                y = entry.y();
+                z = entry.z();
+                yaw = entry.yaw();
+                pitch = entry.pitch();
+            } else {
+                x = y = z = 0;
+            }
+        } else {
+            target = server.getLevel(Level.OVERWORLD);
+            LevelData.RespawnData spawn = target.getRespawnData();
+            x = spawn.pos().getX() + 0.5;
+            y = spawn.pos().getY();
+            z = spawn.pos().getZ() + 0.5;
+            yaw = spawn.yaw();
+            pitch = spawn.pitch();
+        }
+        if (target == null) {
+            return;
+        }
+        player.teleport(new TeleportTransition(target, new Vec3(x, y, z), Vec3.ZERO, yaw, pitch, TeleportTransition.DO_NOTHING));
+        player.sendSystemMessage(Component.literal("The End has been locked; you were returned to " + target.dimension().identifier() + ".").withStyle(ChatFormatting.RED));
+        LOGGER.info("Returned {} from The End to {}", player.getName().getString(), target.dimension().identifier());
         saveEntries();
     }
 
