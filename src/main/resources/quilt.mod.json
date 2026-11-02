@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "quilt_loader": {
+    "group": "${group}",
+    "id": "timed_end_unlock",
+    "version": "${version}",
+    "metadata": {
+      "name": "Timed End Unlock",
+      "description": "Controls and schedules access to The End dimension.",
+      "license": "MIT"
+    },
+    "intermediate_mappings": "net.fabricmc:intermediary",
+    "entrypoints": {
+      "main": [
+        "at.salkin.timedendunlock.TimedEndUnlock"
+      ]
+    },
+    "depends": [
+      {
+        "id": "quilt_loader",
+        "versions": ">=${loader_version}"
+      },
+      {
+        "id": "fabric-api",
+        "versions": "*"
+      },
+      {
+        "id": "minecraft",
+        "versions": "~${minecraft_version}"
+      }
+    ]
+  },
+  "mixin": "timed_end_unlock.mixins.json"
+}
+

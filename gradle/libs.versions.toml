@@ -1,0 +1,14 @@
+[versions]
+minecraft = "26.3"
+quilt_loader = "0.30.2"
+quilt_loom = "1.15.1"
+fabric_api = "0.165.0+26.3"
+
+[libraries]
+minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
+quilt_loader = { module = "org.quiltmc:quilt-loader", version.ref = "quilt_loader" }
+fabric_api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric_api" }
+
+[plugins]
+quilt_loom = { id = "org.quiltmc.loom.no_remap", version.ref = "quilt_loom" }
+
