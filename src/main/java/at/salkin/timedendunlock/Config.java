@@ -21,15 +21,21 @@ public final class Config {
 
             # Pattern for {datetime}: y = year, M = month, d = day, H = 24-hour, m = minute, s = second
             datetime_format = "dd/MM/yyyy HH:mm"
+
+            # Big title shown in the center of every player's screen when the End opens,
+            # together with the end portal sound.
+            title_message = "The End has been opened!"
             """;
 
     private static final String FALLBACK_DATETIME = "2026-12-31 20:00";
     private static final String FALLBACK_MESSAGE = "The End is not open yet. It will open on {datetime}.";
     private static final String FALLBACK_FORMAT = "dd/MM/yyyy HH:mm";
+    private static final String FALLBACK_TITLE = "The End has been opened!";
     private static final DateTimeFormatter FALLBACK_FORMATTER = DateTimeFormatter.ofPattern(FALLBACK_FORMAT);
 
     private static LocalDateTime unlockAt = LocalDateTime.MIN;
     private static String message = FALLBACK_MESSAGE;
+    private static String title = FALLBACK_TITLE;
     private static DateTimeFormatter formatter = FALLBACK_FORMATTER;
 
     public static void load() {
@@ -42,6 +48,7 @@ public final class Config {
             String content = Files.readString(file, StandardCharsets.UTF_8);
             unlockAt = LocalDateTime.parse(value(content, "unlock_datetime", FALLBACK_DATETIME).replace(' ', 'T'));
             message = value(content, "unlock_message", FALLBACK_MESSAGE);
+            title = value(content, "title_message", FALLBACK_TITLE);
             try {
                 formatter = DateTimeFormatter.ofPattern(value(content, "datetime_format", FALLBACK_FORMAT));
             } catch (IllegalArgumentException e) {
@@ -59,6 +66,10 @@ public final class Config {
 
     public static String message() {
         return message.replace("{datetime}", unlockAt.format(formatter));
+    }
+
+    public static String title() {
+        return title;
     }
 
     private static String value(String content, String key, String fallback) {

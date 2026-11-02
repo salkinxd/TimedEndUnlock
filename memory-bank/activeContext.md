@@ -11,11 +11,11 @@
   - Main entrypoint `TimedEndUnlock` implementing Fabric `ModInitializer`.
   - End gating v1: `UseBlockCallback` blocks `ENDER_EYE` on `END_PORTAL_FRAME` until TOML `unlock_datetime` (`Config.java`, `config/timed_end_unlock.toml`, `unlock_message` + `datetime_format` placeholders); MC 26.3 `Player.sendSystemMessage`.
   - `/endunlock reload` command + `timed_end_unlock:reload`/`timed_end_unlock:bypass` permission nodes via fabric-permission-api (op fallback GAMEMASTERS, LuckPerms bridge automatic).
+  - Unlock announcement: `ServerTickEvents.END_SERVER_TICK` watches `Config.isOpen()`; on crossing (only if unlock was future at load; `armAnnouncement()` re-armed on reload) sends per-`ServerPlayer` packets: `ClientboundSetTitlesAnimationPacket(10,70,20)` + `ClientboundSetTitleTextPacket(Component.literal(Config.title()))` + `ClientboundSoundPacket(SoundEvents.END_PORTAL_SPAWN, MASTER, at player pos)`; `title_message` config key; `ServerPlayer.connection.send` public; sound needs `Holder<SoundEvent>` via `BuiltInRegistries.SOUND_EVENT.wrapAsHolder`.
 - Immediate Development Focus:
   - Timer/schedule state persistence still pending (config reload, commands).
   - Implement timer/schedule configuration and state persistence for End unlock status.
   - Add Mixins under `at.salkin.timedendunlock.mixin` (e.g., End Portal block collision / Eye of Ender placement / dimension teleport interception).
-  - Register server lifecycle hooks and admin commands via Fabric API in `TimedEndUnlock.onInitialize()`.
 
 ## Memory Bank Index
 - `memory-bank/architecture.md`:

@@ -16,10 +16,11 @@ public final class ModCommands {
                 dispatcher.register(Commands.literal("endunlock")
                         .requires(PermissionPredicates.require(RELOAD, PermissionLevel.GAMEMASTERS))
                         .then(Commands.literal("reload")
-                                .executes(context -> {
-                                    Config.load();
-                                    context.getSource().sendSuccess(() -> Component.literal("Timed End Unlock config reloaded."), true);
-                                    return 1;
-                                }))));
+                                 .executes(context -> {
+                                     Config.load();
+                                     TimedEndUnlock.armAnnouncement();
+                                     context.getSource().sendSuccess(() -> Component.literal("Timed End Unlock config reloaded."), true);
+                                     return 1;
+                                 }))));
     }
 }
