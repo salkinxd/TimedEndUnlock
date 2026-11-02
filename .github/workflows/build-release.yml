@@ -1,0 +1,91 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build mod and publish GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts', 'gradle/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties', 'gradle.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build mod JAR (downloads dependencies via Gradle wrapper)
+        run: |
+          chmod +x gradlew
+          ./gradlew build --no-daemon --stacktrace
+
+      - name: Generate version identifier from mod version, date, and commit SHA
+        id: version
+        run: |
+          set -euo pipefail
+          MOD_VERSION="$(sed -n 's/^mod_version=//p' gradle.properties)"
+          SHORT_SHA="$(git rev-parse --short=7 HEAD)"
+          VERSION_ID="${MOD_VERSION}+main.$(date -u +%Y%m%d).${SHORT_SHA}"
+          echo "version_id=${VERSION_ID}" >> "$GITHUB_OUTPUT"
+          echo "Generated version identifier: ${VERSION_ID}"
+
+      - name: Package distributable JAR
+        run: |
+          set -euo pipefail
+          SRC_JAR="$(find build/libs -maxdepth 1 -name 'timed-end-unlock-*.jar' ! -name '*-sources.jar' | head -n 1)"
+          if [ -z "${SRC_JAR}" ]; then
+            echo "No mod JAR found in build/libs. Build output:"
+            ls -la build/libs
+            exit 1
+          fi
+          mkdir -p dist
+          cp "${SRC_JAR}" "dist/timed-end-unlock-${{ steps.version.outputs.version_id }}.jar"
+          ls -la dist
+
+      - name: Move rolling release tag to this commit
+        run: |
+          set -euo pipefail
+          git tag -f main-latest "${GITHUB_SHA}"
+          git push -f origin main-latest
+
+      - name: Create or update GitHub Release and upload artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION_ID: ${{ steps.version.outputs.version_id }}
+        run: |
+          set -euo pipefail
+          TAG="main-latest"
+          TITLE="Timed End Unlock ${VERSION_ID}"
+          NOTES="$(printf 'Automated build of branch `main`.\n\n- Commit: `%s`\n- Version: `%s`\n- Built: %s' "${GITHUB_SHA}" "${VERSION_ID}" "$(date -u +'%Y-%m-%d %H:%M:%S UTC')")"
+
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            # Update existing release: clear stale assets, refresh metadata, upload fresh JAR.
+            gh release view "${TAG}" --json assets --jq '.assets[].name' | while read -r ASSET; do
+              [ -n "${ASSET}" ] && gh release delete-asset "${TAG}" "${ASSET}" --yes
+            done
+            gh release edit "${TAG}" --title "${TITLE}" --notes "${NOTES}" --prerelease
+            gh release upload "${TAG}" dist/*.jar
+          else
+            gh release create "${TAG}" dist/*.jar --title "${TITLE}" --notes "${NOTES}" --prerelease --target "${GITHUB_SHA}"
+          fi
+
+          echo "Published release:"
+          gh release view "${TAG}" --json url,tagName,name,assets --jq '{url, tagName, name, assets: [.assets[].name]}'

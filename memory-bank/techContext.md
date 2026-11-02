@@ -17,6 +17,7 @@
 - `settings.gradle.kts` -> Plugin management repositories (Quilt, Fabric, Gradle Portal), root project name (`timed-end-unlock`).
 - `gradle.properties` -> Mod coordinates (`mod_version=1.0.0`, `maven_group=at.salkin.timedendunlock`, `archives_base_name=timed-end-unlock`), Gradle JVM flags (`-Xmx4G`, `org.gradle.parallel=true`).
 - `gradle/libs.versions.toml` -> Central version catalog (`minecraft`, `quilt_loader`, `quilt_loom`, `fabric_api`).
+- `.github/workflows/build-release.yml` -> CI on push to `main`: Temurin JDK 25 + Gradle cache, `./gradlew build`, version id `<mod_version>+main.<yyyymmdd>.<shortsha>`, rolling tag `main-latest` (force-moved), create/update prerelease, upload JAR (stale assets purged), fail via `set -euo pipefail`.
 
 ### Mod Manifests & Resources
 - `src/main/resources/quilt.mod.json` -> Quilt metadata, `main` entrypoint registration, dependency rules, mixin config link.
