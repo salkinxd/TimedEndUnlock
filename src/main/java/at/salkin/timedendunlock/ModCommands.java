@@ -60,7 +60,7 @@ public final class ModCommands {
                                     apply(context, Component.literal("The End is now open."));
                                     return 1;
                                 })
-                                .then(Commands.argument("datetime", StringArgumentType.string())
+                                .then(Commands.argument("datetime", StringArgumentType.greedyString())
                                         .suggests((context, builder) -> {
                                             builder.suggest(LocalDateTime.now().plusDays(7).format(DATETIME));
                                             return builder.buildFuture();
@@ -78,7 +78,7 @@ public final class ModCommands {
                                     apply(context, Component.literal("The End is now locked indefinitely."));
                                     return 1;
                                 })
-                                .then(Commands.argument("datetime", StringArgumentType.string())
+                                .then(Commands.argument("datetime", StringArgumentType.greedyString())
                                         .suggests((context, builder) -> {
                                             builder.suggest(LocalDateTime.now().plusDays(7).format(DATETIME));
                                             return builder.buildFuture();
@@ -101,10 +101,13 @@ public final class ModCommands {
     }
 
     private static LocalDateTime parseDatetime(CommandContext<CommandSourceStack> context, String name) throws CommandSyntaxException {
-        String raw = StringArgumentType.getString(context, name);
+        String raw = StringArgumentType.getString(context, name).trim();
+        if (raw.length() >= 2 && raw.startsWith("\"") && raw.endsWith("\"")) {
+            raw = raw.substring(1, raw.length() - 1).trim();
+        }
         LocalDateTime when;
         try {
-            when = LocalDateTime.parse(raw.replace(' ', 'T'), DATETIME);
+            when = LocalDateTime.parse(raw.replace('T', ' ').replace('t', ' '), DATETIME);
         } catch (DateTimeException e) {
             throw NOT_A_DATETIME.create();
         }
