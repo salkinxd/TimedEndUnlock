@@ -73,11 +73,15 @@ public final class Config {
     }
 
     public static String message() {
-        return indefinite() ? indefiniteMessage : message.replace("{datetime}", unlockAt.format(formatter));
+        return isIndefinite() ? indefiniteMessage : message.replace("{datetime}", unlockAt.format(formatter));
     }
 
-    private static boolean indefinite() {
+    public static boolean isIndefinite() {
         return unlockAt.equals(LocalDateTime.MAX);
+    }
+
+    public static LocalDateTime unlockAt() {
+        return unlockAt;
     }
 
     public static String format(LocalDateTime dateTime) {

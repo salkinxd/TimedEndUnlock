@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.permission.v1.PermissionNode;
 import net.fabricmc.fabric.api.permission.v1.PermissionPredicates;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.PermissionLevel;
 
@@ -30,6 +31,17 @@ public final class ModCommands {
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
                 dispatcher.register(Commands.literal("endunlock")
+                        .executes(context -> {
+                            CommandSourceStack source = context.getSource();
+                            if (Config.isOpen()) {
+                                source.sendSuccess(() -> Component.literal("The End is already unlocked and open.").withStyle(ChatFormatting.GREEN), false);
+                            } else if (Config.isIndefinite()) {
+                                source.sendSuccess(() -> Component.literal("The End is locked indefinitely. An administrator will announce when it reopens.").withStyle(ChatFormatting.RED), false);
+                            } else {
+                                source.sendSuccess(() -> Component.literal("The End will unlock on " + Config.format(Config.unlockAt()) + ".").withStyle(ChatFormatting.YELLOW), false);
+                            }
+                            return 1;
+                        })
                         .then(Commands.literal("reload")
                                 .requires(PermissionPredicates.require(RELOAD, PermissionLevel.GAMEMASTERS))
                                 .executes(context -> {

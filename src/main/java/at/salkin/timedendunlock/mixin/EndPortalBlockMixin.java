@@ -5,6 +5,8 @@ import at.salkin.timedendunlock.ModCommands;
 import at.salkin.timedendunlock.TimedEndUnlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
@@ -19,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(EndPortalBlock.class)
 public abstract class EndPortalBlockMixin {
+    private static final int FIRE_RESISTANCE_TICKS = 60 * 20;
 
     @Inject(method = "entityInside", at = @At("HEAD"), cancellable = true)
     private void timedEndUnlock$gateEndEntry(BlockState state, Level level, BlockPos pos, Entity entity,
@@ -32,6 +35,7 @@ public abstract class EndPortalBlockMixin {
         }
         if (!Config.isOpen() && !player.checkPermission(ModCommands.BYPASS.key(), PermissionLevel.GAMEMASTERS)) {
             TimedEndUnlock.sendLockedMessage(player);
+            player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, FIRE_RESISTANCE_TICKS));
             ci.cancel();
         } else {
             TimedEndUnlock.recordEntry(player, serverLevel);
