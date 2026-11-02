@@ -13,7 +13,6 @@
 
 ### Build & Configuration
 - `README.md` -> Project overview, requirements, build command, license.
-- `watch-server.ps1` -> PowerShell dev watcher: monitors `build/libs/timed-end-unlock-1.0.0.jar`, stops/restarts test server (`D:\Minecraft\Test-Environment\server-base`), and deploys rebuilt JAR to `mods/`.
 - `build.gradle.kts` -> Gradle build logic, Quilt/Fabric repositories, dependencies, Loom mod/run configuration (`-Dloader.disableEnvironmentStrip=true`), Java 25 toolchain, `quilt.mod.json` property expansion.
 - `settings.gradle.kts` -> Plugin management repositories (Quilt, Fabric, Gradle Portal), root project name (`timed-end-unlock`).
 - `gradle.properties` -> Mod coordinates (`mod_version=1.0.0`, `maven_group=at.salkin.timedendunlock`, `archives_base_name=timed-end-unlock`), Gradle JVM flags (`-Xmx4G`, `org.gradle.parallel=true`).
