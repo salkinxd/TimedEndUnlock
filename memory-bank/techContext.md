@@ -13,6 +13,7 @@
 
 ### Build & Configuration
 - `README.md` -> Project overview, requirements, build command, license.
+- `wiki/` -> Local clone of `TimedEndUnlock.wiki.git` (gitignored in main repo): `Home.md`, `Requirements.md`, `Installation-Instructions.md`, `Mod-Usage.md`, `Development-Requirements.md`, `Contributing-Guidelines.md`, `_Sidebar.md`.
 - `LICENSE.md` -> "Timed End Unlock Noncommercial License 1.0": modify/redistribute free w/ attribution + share-alike; monetization requires written consent. `quilt.mod.json` license = `LicenseRef-Timed-End-Unlock-Noncommercial-1.0`.
 - `build.gradle.kts` -> Gradle build logic, Quilt/Fabric repositories, dependencies, Loom mod/run configuration (`-Dloader.disableEnvironmentStrip=true`), Java 25 toolchain, `quilt.mod.json` property expansion.
 - `settings.gradle.kts` -> Plugin management repositories (Quilt, Fabric, Gradle Portal), root project name (`timed-end-unlock`).
