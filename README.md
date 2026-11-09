@@ -4,6 +4,9 @@
 
 Timed End Unlock is a server-side Quilt/Fabric-API mod that lets server administrators gate, schedule, and revoke access to The End dimension. Players can explore the Overworld and the Nether freely, but the stronghold's End Portal stays dormant until the scheduled unlock moment — turning a seasonal event, a community countdown, or a hardcore progression rule into something the server enforces for everyone at once.
 
+> [!NOTE]
+> **AI Disclaimer:** This mod (code and documentation) was generated using AI coding agents under human direction and review.
+
 ## Features
 
 - **Scheduled unlock** — set a single date/time in a TOML config; Eyes of Ender simply refuse to activate the portal frame until that moment.
@@ -96,6 +99,7 @@ The JAR is produced in `build/libs/`. The build uses Gradle Kotlin DSL, Quilt Lo
 ## Credits
 
 - **salkin** — author and maintainer (`at.salkin.timedendunlock`).
+- Generated with the assistance of **AI coding agents**.
 - Built on **Quilt Loader**, **Fabric API** (including Fabric Permission API), and **SpongePowered Mixin**; Minecraft is a trademark of Mojang/Microsoft. This project is not affiliated with Mojang or the Quilt/Fabric projects.
 
 ## License
